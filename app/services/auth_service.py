@@ -16,13 +16,19 @@ def _normalize_password(password: str) -> str:
 
 # ✅ Verify password (handles both old + new users)
 def verify_password(plain: str, hashed: str) -> bool:
+    # New method (SHA256 → bcrypt)
+    normalized = _normalize_password(plain)
     try:
-        # New method (SHA256 → bcrypt)
-        normalized = _normalize_password(plain)
-        return pwd_context.verify(normalized, hashed)
+        if pwd_context.verify(normalized, hashed):
+            return True
     except Exception:
-        # Fallback for old users (raw bcrypt)
+        pass
+    
+    # Fallback for old users (raw bcrypt, pre-normalization)
+    try:
         return pwd_context.verify(plain, hashed)
+    except Exception:
+        return False
 
 
 # ✅ Hash password (always use normalized)
