@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -8,16 +9,27 @@ from app.config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def _normalize_password(password: str) -> str:
+    """
+    Hash password with SHA-256 first to avoid bcrypt 72-byte limit.
+    """
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    normalized = _normalize_password(plain)
+    return pwd_context.verify(normalized, hashed)
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    normalized = _normalize_password(password)
+    return pwd_context.hash(normalized)
 
 
 def create_access_token(subject: str, extra: dict | None = None) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.access_token_expire_minutes
+    )
     payload: dict = {"sub": subject, "exp": int(expire.timestamp())}
     if extra:
         payload.update(extra)
