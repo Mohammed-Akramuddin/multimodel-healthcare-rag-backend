@@ -27,8 +27,8 @@ SYSTEM_PROMPT = (
     "Keep answers concise."
 )
 
-GROQ_MODEL = "llama-3.1-8b-instant"
-_FALLBACK_MODEL_ON_DECOMMISSION = "openai/gpt-oss-20b"
+GROQ_MODEL = "openai/gpt-oss-20b"
+_FALLBACK_MODEL_ON_DECOMMISSION = "openai/gpt-oss-120b"
 MAX_CONTEXT_CHARS = 4500
 MAX_CONTEXT_CHUNKS = 3
 MAX_TOKENS = 140
